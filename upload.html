@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="牙齿X光片智能分割系统">
+    <title>齿影智诊 - 图像分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2B6CB0;      /* 医疗蓝 */
+            --secondary-color: #4A5568;     /* 深灰 */
+            --accent-color: #38B2AC;        /* 医疗青绿 */
+            --text-color: #2D3748;
+            --light-color: #EDF2F7;
+            --dark-color: #1A365D;
+            --white-color: #FFFFFF;
+            --error-color: #E53E3E;
+            --success-color: #38A169;
+            --medical-gradient: linear-gradient(135deg, #2B6CB0 0%, #38B2AC 100%);
+            --sidebar-width: 280px;
+            --transition-speed: 0.3s;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* 新增字体变量 */
+            --heading-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --body-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: default !important; /* 确保所有元素使用默认光标 */
+        }
+
+        /* 为可点击元素设置指针样式 */
+        a, button, input[type="file"], .file-input-trigger {
+            cursor: pointer !important;
+        }
+
+        /* 表单元素使用默认光标 */
+        input, textarea, select {
+            cursor: text !important;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, #FFFFFF, #F7FAFC);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid rgba(43, 108, 176, 0.1);
+            padding: 1.5rem 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0.5rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--light-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--medical-gradient);
+            border-radius: 3px;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            padding: 0.5rem 0;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary-color);
+            margin: 1.5rem 1.5rem 0.8rem;
+            opacity: 0.7;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            list-style: none;
+            margin-bottom: 0.3rem;
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            gap: 0.75rem;
+            font-weight: 500;
+            border-radius: 0 8px 8px 0;
+            margin-right: 0.7rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--medical-gradient);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-link.active {
+            box-shadow: 0 2px 5px rgba(43, 108, 176, 0.1);
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i,
+        .nav-link.active i {
+            transform: scale(1.2);
+        }
+
+        .nav-link .badge {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            margin-left: auto;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--light-color);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        .sidebar-footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            border-radius: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            margin-right: 6px;
+            position: relative;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--success-color);
+            opacity: 0.5;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            70% {
+                transform: scale(2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .main-content::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 90%;
+            height: 90%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, rgba(43, 108, 176, 0.05) 50%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .wrapper {
+            background: var(--white-color);
+            padding: 3.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(43, 108, 176, 0.15);
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+            z-index: 1;
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(237, 242, 247, 0.8);
+            overflow: hidden;
+        }
+
+        .wrapper::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(43, 108, 176, 0.2);
+        }
+
+        .header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            color: var(--dark-color);
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--medical-gradient);
+            border-radius: 4px;
+        }
+
+        .header p {
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            max-width: 85%;
+            margin: 1.5rem auto 0;
+            opacity: 0.9;
+        }
+
+        .upload-container {
+            background: linear-gradient(145deg, #f7fafc, #edf2f7);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 2px dashed rgba(43, 108, 176, 0.3);
+            margin: 2.5rem 0;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .upload-container::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 1v18M1 10h18" stroke="%232B6CB0" stroke-width="0.5" stroke-opacity="0.1" stroke-dasharray="1 4"/></svg>') repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .upload-container:hover {
+            border-color: var(--accent-color);
+            background: linear-gradient(to right bottom, #f7fafc, #edf2f7);
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(43, 108, 176, 0.1);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-input-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 2rem;
+            background: var(--white-color);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            box-shadow: 0 4px 10px rgba(43, 108, 176, 0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .file-input-trigger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-color);
+            z-index: -1;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s ease-out;
+        }
+
+        .file-input-trigger:hover {
+            color: var(--white-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(43, 108, 176, 0.2);
+        }
+
+        .file-input-trigger:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .file-input-trigger i {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .file-input-trigger:hover i {
+            transform: scale(1.2);
+        }
+
+        .submit-button {
+            background: var(--medical-gradient);
+            color: var(--white-color);
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.2);
+            display: block;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(43, 108, 176, 0.3);
+        }
+
+        .submit-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            z-index: 0;
+        }
+
+        .submit-button:hover::after {
+            transform: translateX(100%);
+            transition: transform 0.6s ease;
+        }
+
+        .submit-button i {
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .submit-button:hover i {
+            transform: rotate(15deg) scale(1.2);
+        }
+
+        .btn-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-shine {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease, opacity 0.5s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .btn-shine.active {
+            width: 150px;
+            height: 150px;
+            opacity: 1;
+        }
+
+        .file-name {
+            margin-top: 1.2rem;
+            color: var(--secondary-color);
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all var(--transition-speed) ease;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .file-name:not(:empty) {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .upload-info {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .upload-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .upload-info-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(43, 108, 176, 0.1);
+        }
+
+        .upload-info-item i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .upload-container.has-file {
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 20px rgba(43, 108, 176, 0.15);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+            padding-top: 2.5rem;
+            border-top: 2px solid var(--light-color);
+            position: relative;
+            z-index: 2;
+        }
+
+        .stats-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 4px;
+            background: var(--medical-gradient);
+            border-radius: 4px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.8rem 1.5rem;
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(43, 108, 176, 0.08);
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(237, 242, 247, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: var(--medical-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(43, 108, 176, 0.12);
+        }
+
+        .stat-item:hover::before {
+            opacity: 0.05;
+        }
+
+        .stat-icon {
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon i {
+            font-size: 2rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .features-section {
+            margin-top: 3.5rem;
+            padding-top: 2.5rem;
+            border-top: 2px solid var(--light-color);
+            position: relative;
+        }
+
+        .features-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 4px;
+            background: var(--medical-gradient);
+            border-radius: 4px;
+        }
+
+        .features-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .feature-item {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 16px;
+            padding: 1.8rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(43, 108, 176, 0.08);
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(237, 242, 247, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-item::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: var(--medical-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(43, 108, 176, 0.12);
+        }
+
+        .feature-item:hover::before {
+            opacity: 0.05;
+        }
+
+        .feature-icon {
+            margin-bottom: 1.2rem;
+        }
+
+        .feature-icon i {
+            font-size: 2.2rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.9;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-desc {
+            font-size: 0.95rem;
+            color: var(--secondary-color);
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .features-grid,
+            .stats-container {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            
+            .upload-info {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .wrapper {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo">
+                <i class="ri-heart-pulse-line"></i>
+                <span>齿影智诊</span>
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <div class="sidebar-section-title">主要功能</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="ri-home-4-line"></i>
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="ri-image-add-line"></i>
+                        <span>图像分析</span>
+                        <span class="badge">推荐</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/medical_assistant" class="nav-link">
+                        <i class="ri-robot-line"></i>
+                        <span>医疗助手</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-section-title">辅助工具</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/history" class="nav-link">
+                        <i class="ri-file-history-line"></i>
+                        <span>历史记录</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/settings" class="nav-link">
+                        <i class="ri-settings-3-line"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/help" class="nav-link">
+                        <i class="ri-question-line"></i>
+                        <span>帮助中心</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>@ 2025 齿影智诊</p>
+            <p>版本: 1.0</p>
+            <div class="sidebar-status">
+                <div class="status-indicator"></div>
+                <span>系统状态: 正常运行中</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="wrapper">
+            <header class="header">
+                <h1>智能图像分析</h1>
+                <p>上传牙齿X光片，快速获取AI辅助分析结果</p>
+            </header>
+            <form action="" enctype="multipart/form-data" method="POST">
+                <div class="upload-container">
+                    <div class="file-input-wrapper">
+                        <div class="file-input-trigger">
+                            <i class="ri-image-add-line"></i>
+                            <span>选择图像文件</span>
+                        </div>
+                        <input type="file" name="file" id="file-input" accept="image/*">
+                    </div>
+                    <div class="file-name" id="file-name"></div>
+                    <div class="upload-info">
+                        <div class="upload-info-item">
+                            <i class="ri-file-list-line"></i>
+                            <span>支持格式: JPG, PNG, DICOM</span>
+                        </div>
+                        <div class="upload-info-item">
+                            <i class="ri-lock-line"></i>
+                            <span>数据安全加密传输</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="submit-button">
+                    <span class="btn-content">
+                        <i class="ri-microscope-line"></i>
+                        <span>开始分析</span>
+                    </span>
+                    <span class="btn-shine"></span>
+                </button>
+            </form>
+
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="ri-pie-chart-line"></i>
+                    </div>
+                    <div class="stat-value">95%</div>
+                    <div class="stat-label">分析准确率</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="ri-time-line"></i>
+                    </div>
+                    <div class="stat-value">&lt;5s</div>
+                    <div class="stat-label">处理时间</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="ri-user-heart-line"></i>
+                    </div>
+                    <div class="stat-value">2000+</div>
+                    <div class="stat-label">成功案例</div>
+                </div>
+            </div>
+            
+            <div class="features-section">
+                <div class="features-title">主要功能</div>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ri-compasses-2-line"></i>
+                        </div>
+                        <div class="feature-title">精准分割</div>
+                        <div class="feature-desc">AI深度学习模型准确识别牙齿边界</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ri-file-chart-line"></i>
+                        </div>
+                        <div class="feature-title">诊断辅助</div>
+                        <div class="feature-desc">为医生提供精准的参考数据</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ri-database-2-line"></i>
+                        </div>
+                        <div class="feature-title">数据安全</div>
+                        <div class="feature-desc">全程加密传输，保护患者隐私</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            document.getElementById('file-name').textContent = fileName ? `已选择: ${fileName}` : '';
+            
+            if(fileName) {
+                document.querySelector('.upload-container').classList.add('has-file');
+            } else {
+                document.querySelector('.upload-container').classList.remove('has-file');
+            }
+        });
+        
+        // 添加点击事件监听，修复文件上传问题
+        document.querySelector('.file-input-trigger').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('file-input').click();
+        });
+        
+        // 为按钮添加涟漪效果
+        const button = document.querySelector('.submit-button');
+        button.addEventListener('mouseenter', function(e) {
+            const x = e.clientX - button.getBoundingClientRect().left;
+            const y = e.clientY - button.getBoundingClientRect().top;
+            
+            const shine = document.querySelector('.btn-shine');
+            shine.style.left = `${x}px`;
+            shine.style.top = `${y}px`;
+            shine.classList.add('active');
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            const shine = document.querySelector('.btn-shine');
+            shine.classList.remove('active');
+        });
+        
+        // 确保没有自定义光标脚本运行
+        if (window.customCursor) {
+            window.customCursor.disable();
+        }
+    </script>
+</body>
+</html>
