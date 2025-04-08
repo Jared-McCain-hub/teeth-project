@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="牙齿X光片智能分割系统 - 系统设置">
+    <title>齿影智诊 - 系统设置</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2B6CB0;      /* 医疗蓝 */
+            --secondary-color: #4A5568;     /* 深灰 */
+            --accent-color: #38B2AC;        /* 医疗青绿 */
+            --text-color: #2D3748;
+            --light-color: #EDF2F7;
+            --dark-color: #1A365D;
+            --white-color: #FFFFFF;
+            --error-color: #E53E3E;
+            --success-color: #38A169;
+            --medical-gradient: linear-gradient(135deg, #2B6CB0 0%, #38B2AC 100%);
+            --sidebar-width: 280px;
+            --transition-speed: 0.3s;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* 新增字体变量 */
+            --heading-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --body-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: default !important; /* 确保所有元素使用默认光标 */
+        }
+
+        /* 为可点击元素设置指针样式 */
+        a, button, input[type="file"], .file-input-trigger, .toggle-switch {
+            cursor: pointer !important;
+        }
+
+        /* 表单元素使用默认光标 */
+        input, textarea, select {
+            cursor: text !important;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, #FFFFFF, #F7FAFC);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid rgba(43, 108, 176, 0.1);
+            padding: 1.5rem 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0.5rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--light-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--medical-gradient);
+            border-radius: 3px;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            padding: 0.5rem 0;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary-color);
+            margin: 1.5rem 1.5rem 0.8rem;
+            opacity: 0.7;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            list-style: none;
+            margin-bottom: 0.3rem;
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            gap: 0.75rem;
+            font-weight: 500;
+            border-radius: 0 8px 8px 0;
+            margin-right: 0.7rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--medical-gradient);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-link.active {
+            box-shadow: 0 2px 5px rgba(43, 108, 176, 0.1);
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i,
+        .nav-link.active i {
+            transform: scale(1.2);
+        }
+
+        .nav-link .badge {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            margin-left: auto;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--light-color);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        .sidebar-footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            border-radius: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            margin-right: 6px;
+            position: relative;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--success-color);
+            opacity: 0.5;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            70% {
+                transform: scale(2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .main-content::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 90%;
+            height: 90%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, rgba(43, 108, 176, 0.05) 50%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .settings-container {
+            background: var(--white-color);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(43, 108, 176, 0.15);
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            z-index: 1;
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(237, 242, 247, 0.8);
+            overflow: hidden;
+        }
+
+        .settings-container::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .settings-header {
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .settings-header h1 {
+            color: var(--dark-color);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        .settings-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--medical-gradient);
+            border-radius: 4px;
+        }
+
+        .settings-header p {
+            color: var(--secondary-color);
+            font-size: 1rem;
+            line-height: 1.6;
+            max-width: 85%;
+            margin: 0.5rem auto 0;
+            opacity: 0.9;
+        }
+
+        .settings-section {
+            margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .settings-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-section-title i {
+            font-size: 1.4rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .settings-item {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 20px rgba(43, 108, 176, 0.08);
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(237, 242, 247, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .settings-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-item::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: var(--medical-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .settings-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(43, 108, 176, 0.12);
+        }
+
+        .settings-item:hover::before {
+            opacity: 0.05;
+        }
+
+        .settings-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .settings-item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .settings-item-description {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .settings-form {
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-color);
+            border-radius: 8px;
+            font-family: var(--body-font);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-color);
+            border-radius: 8px;
+            font-family: var(--body-font);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234A5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background: var(--medical-gradient);
+        }
+
+        input:focus + .toggle-slider {
+            box-shadow: 0 0 1px var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-label span {
+            font-size: 0.95rem;
+            color: var(--secondary-color);
+        }
+
+        .settings-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--medical-gradient);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(43, 108, 176, 0.2);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--secondary-color);
+            border: 1px solid var(--light-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light-color);
+            transform: translateY(-2px);
+        }
+
+        .btn i {
+            font-size: 1.1rem;
+        }
+
+        .color-scheme-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.2);
+        }
+
+        .color-scheme-1 {
+            background: linear-gradient(135deg, #2B6CB0 0%, #38B2AC 100%);
+        }
+
+        .color-scheme-2 {
+            background: linear-gradient(135deg, #805AD5 0%, #6B46C1 100%);
+        }
+
+        .color-scheme-3 {
+            background: linear-gradient(135deg, #DD6B20 0%, #ED8936 100%);
+        }
+
+        .color-scheme-4 {
+            background: linear-gradient(135deg, #38A169 0%, #48BB78 100%);
+        }
+
+        .color-scheme-5 {
+            background: linear-gradient(135deg, #E53E3E 0%, #F56565 100%);
+        }
+
+        .color-scheme-6 {
+            background: linear-gradient(135deg, #4A5568 0%, #718096 100%);
+        }
+
+        .language-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .language-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .language-option:hover {
+            background: var(--light-color);
+        }
+
+        .language-option.active {
+            background: var(--light-color);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .language-option input[type="radio"] {
+            margin-right: 0.5rem;
+        }
+
+        .language-option label {
+            font-size: 0.95rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+        }
+
+        .notification-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .notification-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .notification-option:last-child {
+            border-bottom: none;
+        }
+
+        .notification-option-label {
+            font-size: 0.95rem;
+            color: var(--secondary-color);
+        }
+
+        .privacy-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .privacy-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .privacy-option:last-child {
+            border-bottom: none;
+        }
+
+        .privacy-option-label {
+            font-size: 0.95rem;
+            color: var(--secondary-color);
+        }
+
+        .data-management {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .data-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .data-action:hover {
+            background: #e2e8f0;
+        }
+
+        .data-action-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .data-action-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.2rem;
+        }
+
+        .data-action-description {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        .data-action-button {
+            padding: 0.5rem 1rem;
+            background: white;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .data-action-button:hover {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .about-section {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--light-color);
+            margin-top: 2rem;
+        }
+
+        .about-logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .about-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .about-version {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .about-description {
+            font-size: 0.95rem;
+            color: var(--secondary-color);
+            max-width: 80%;
+            margin: 0 auto 1.5rem;
+            line-height: 1.6;
+        }
+
+        .about-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .about-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .about-link:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .settings-container {
+                padding: 1.5rem;
+            }
+            
+            .settings-item {
+                padding: 1.2rem;
+            }
+            
+            .settings-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .settings-container {
+                padding: 1rem;
+            }
+
+            .settings-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .settings-section-title {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo">
+                <i class="ri-heart-pulse-line"></i>
+                <span>齿影智诊</span>
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <div class="sidebar-section-title">主要功能</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="ri-home-4-line"></i>
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/predict" class="nav-link">
+                        <i class="ri-image-add-line"></i>
+                        <span>图像分析</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/medical_assistant" class="nav-link">
+                        <i class="ri-robot-line"></i>
+                        <span>医疗助手</span>
+                        <span class="badge">AI</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-section-title">辅助工具</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/history" class="nav-link">
+                        <i class="ri-file-history-line"></i>
+                        <span>历史记录</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/settings" class="nav-link active">
+                        <i class="ri-settings-3-line"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/help" class="nav-link">
+                        <i class="ri-question-line"></i>
+                        <span>帮助中心</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>@ 2025 齿影智诊</p>
+            <p>版本: 1.0</p>
+            <div class="sidebar-status">
+                <div class="status-indicator"></div>
+                <span>系统状态: 正常运行中</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="settings-container">
+            <header class="settings-header">
+                <h1>系统设置</h1>
+                <p>自定义您的系统偏好和隐私选项</p>
+            </header>
+            
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="ri-palette-line"></i>
+                    <span>外观设置</span>
+                </div>
+                
+                <div class="settings-item">
+                    <div class="settings-item-header">
+                        <div class="settings-item-title">主题颜色</div>
+                    </div>
+                    <div class="settings-item-description">
+                        选择您喜欢的系统主题颜色
+                    </div>
+                    <div class="color-scheme-options">
+                        <div class="color-option color-scheme-1 active"></div>
+                        <div class="color-option color-scheme-2"></div>
+                        <div class="color-option color-scheme-3"></div>
+                        <div class="color-option color-scheme-4"></div>
+                        <div class="color-option color-scheme-5"></div>
+                        <div class="color-option color-scheme-6"></div>
+                    </div>
+                </div>
+                
+                <div class="settings-item">
+                    <div class="settings-item-header">
+                        <div class="settings-item-title">界面语言</div>
+                    </div>
+                    <div class="settings-item-description">
+                        选择系统界面显示的语言
+                    </div>
+                    <div class="language-options">
+                        <div class="language-option active">
+                            <input type="radio" id="lang-zh" name="language" checked>
+                            <label for="lang-zh">简体中文</label>
+                        </div>
+                        <div class="language-option">
+                            <input type="radio" id="lang-en" name="language">
+                            <label for="lang-en">English</label>
+                        </div>
+                        <div class="language-option">
+                            <input type="radio" id="lang-ja" name="language">
+                            <label for="lang-ja">日本語</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="ri-notification-3-line"></i>
+                    <span>通知设置</span>
+                </div>
+                
+                <div class="settings-item">
+                    <div class="settings-item-header">
+                        <div class="settings-item-title">通知偏好</div>
+                    </div>
+                    <div class="settings-item-description">
+                        管理您希望接收的通知类型
+                    </div>
+                    <div class="notification-options">
+                        <div class="notification-option">
+                            <div class="notification-option-label">分析完成通知</div>
+                            <label class="toggle-label">
+                                <span>开启</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="notification-option">
+                            <div class="notification-option-label">系统更新提醒</div>
+                            <label class="toggle-label">
+                                <span>开启</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="notification-option">
+                            <div class="notification-option-label">医疗助手消息</div>
+                            <label class="toggle-label">
+                                <span>开启</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="ri-shield-check-line"></i>
+                    <span>隐私与安全</span>
+                </div>
+                
+                <div class="settings-item">
+                    <div class="settings-item-header">
+                        <div class="settings-item-title">隐私选项</div>
+                    </div>
+                    <div class="settings-item-description">
+                        管理您的数据隐私和安全设置
+                    </div>
+                    <div class="privacy-options">
+                        <div class="privacy-option">
+                            <div class="privacy-option-label">匿名数据分析</div>
+                            <label class="toggle-label">
+                                <span>开启</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="privacy-option">
+                            <div class="privacy-option-label">自动保存历史记录</div>
+                            <label class="toggle-label">
+                                <span>开启</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="privacy-option">
+                            <div class="privacy-option-label">AI学习数据共享</div>
+                            <label class="toggle-label">
+                                <span>开启</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-item">
+                    <div class="settings-item-header">
+                        <div class="settings-item-title">数据管理</div>
+                    </div>
+                    <div class="settings-item-description">
+                        管理您的个人数据和历史记录
+                    </div>
+                    <div class="data-management">
+                        <div class="data-action">
+                            <div class="data-action-info">
+                                <div class="data-action-title">导出个人数据</div>
+                                <div class="data-action-description">下载您的所有个人数据和分析记录</div>
+                            </div>
+                            <button class="data-action-button">
+                                <i class="ri-download-line"></i>
+                                导出
+                            </button>
+                        </div>
+                        <div class="data-action">
+                            <div class="data-action-info">
+                                <div class="data-action-title">清除历史记录</div>
+                                <div class="data-action-description">删除所有分析历史和聊天记录</div>
+                            </div>
+                            <button class="data-action-button">
+                                <i class="ri-delete-bin-line"></i>
+                                清除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-section-title">
+                    <i class="ri-user-settings-line"></i>
+                    <span>账户设置</span>
+                </div>
+                
+                <div class="settings-item">
+                    <div class="settings-item-header">
+                        <div class="settings-item-title">个人信息</div>
+                    </div>
+                    <div class="settings-item-description">
+                        更新您的个人账户信息
+                    </div>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label class="form-label" for="username">用户名</label>
+                            <input type="text" id="username" class="form-input" value="用户12345">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="email">电子邮箱</label>
+                            <input type="email" id="email" class="form-input" value="user@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="role">用户角色</label>
+                            <select id="role" class="form-select">
+                                <option value="patient">患者</option>
+                                <option value="doctor" selected>医生</option>
+                                <option value="researcher">研究人员</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="settings-item">
+                    <div class="settings-item-header">
+                        <div class="settings-item-title">安全设置</div>
+                    </div>
+                    <div class="settings-item-description">
+                        管理您的账户安全选项
+                    </div>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label class="form-label" for="current-password">当前密码</label>
+                            <input type="password" id="current-password" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="new-password">新密码</label>
+                            <input type="password" id="new-password" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="confirm-password">确认新密码</label>
+                            <input type="password" id="confirm-password" class="form-input">
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="about-section">
+                <div class="about-logo">
+                    <i class="ri-heart-pulse-line"></i>
+                </div>
+                <div class="about-title">齿影智诊</div>
+                <div class="about-version">版本 2.5.1</div>
+                <div class="about-description">
+                    齿影智诊是一款专业的牙齿X光片智能分割系统，采用先进的AI技术，为口腔医疗提供精准的诊断辅助工具。
+                </div>
+                <div class="about-links">
+                    <a href="#" class="about-link">使用条款</a>
+                    <a href="#" class="about-link">隐私政策</a>
+                    <a href="#" class="about-link">联系我们</a>
+                </div>
+            </div>
+            
+            <div class="settings-actions">
+                <button class="btn btn-secondary">
+                    <i class="ri-refresh-line"></i>
+                    重置设置
+                </button>
+                <button class="btn btn-primary">
+                    <i class="ri-save-line"></i>
+                    保存更改
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 主题颜色选择
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    colorOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // 语言选择
+            const languageOptions = document.querySelectorAll('.language-option');
+            languageOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    languageOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // 保存设置按钮
+            const saveButton = document.querySelector('.btn-primary');
+            saveButton.addEventListener('click', function() {
+                // 这里可以添加保存设置的逻辑
+                alert('设置已保存');
+            });
+            
+            // 重置设置按钮
+            const resetButton = document.querySelector('.btn-secondary');
+            resetButton.addEventListener('click', function() {
+                // 这里可以添加重置设置的逻辑
+                if (confirm('确定要重置所有设置吗？')) {
+                    alert('设置已重置');
+                }
+            });
+            
+            // 数据管理按钮
+            const exportButton = document.querySelector('.data-action:nth-child(1) .data-action-button');
+            exportButton.addEventListener('click', function() {
+                alert('数据导出功能即将推出');
+            });
+            
+            const clearButton = document.querySelector('.data-action:nth-child(2) .data-action-button');
+            clearButton.addEventListener('click', function() {
+                if (confirm('确定要清除所有历史记录吗？此操作不可撤销。')) {
+                    alert('历史记录已清除');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
