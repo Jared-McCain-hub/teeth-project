@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="牙齿X光片智能分割系统 - 历史记录">
+    <title>齿影智诊 - 历史记录</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2B6CB0;      /* 医疗蓝 */
+            --secondary-color: #4A5568;     /* 深灰 */
+            --accent-color: #38B2AC;        /* 医疗青绿 */
+            --text-color: #2D3748;
+            --light-color: #EDF2F7;
+            --dark-color: #1A365D;
+            --white-color: #FFFFFF;
+            --error-color: #E53E3E;
+            --success-color: #38A169;
+            --medical-gradient: linear-gradient(135deg, #2B6CB0 0%, #38B2AC 100%);
+            --sidebar-width: 280px;
+            --transition-speed: 0.3s;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* 新增字体变量 */
+            --heading-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --body-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: default !important; /* 确保所有元素使用默认光标 */
+        }
+
+        /* 为可点击元素设置指针样式 */
+        a, button, input[type="file"], .file-input-trigger {
+            cursor: pointer !important;
+        }
+
+        /* 表单元素使用默认光标 */
+        input, textarea, select {
+            cursor: text !important;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, #FFFFFF, #F7FAFC);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid rgba(43, 108, 176, 0.1);
+            padding: 1.5rem 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0.5rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--light-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--medical-gradient);
+            border-radius: 3px;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            padding: 0.5rem 0;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary-color);
+            margin: 1.5rem 1.5rem 0.8rem;
+            opacity: 0.7;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            list-style: none;
+            margin-bottom: 0.3rem;
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            gap: 0.75rem;
+            font-weight: 500;
+            border-radius: 0 8px 8px 0;
+            margin-right: 0.7rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--medical-gradient);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-link.active {
+            box-shadow: 0 2px 5px rgba(43, 108, 176, 0.1);
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i,
+        .nav-link.active i {
+            transform: scale(1.2);
+        }
+
+        .nav-link .badge {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            margin-left: auto;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--light-color);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        .sidebar-footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            border-radius: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            margin-right: 6px;
+            position: relative;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--success-color);
+            opacity: 0.5;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            70% {
+                transform: scale(2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .main-content::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 90%;
+            height: 90%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, rgba(43, 108, 176, 0.05) 50%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .history-container {
+            background: var(--white-color);
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(43, 108, 176, 0.15);
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(237, 242, 247, 0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .history-container::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .history-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .history-header h1 {
+            color: var(--dark-color);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        .history-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--medical-gradient);
+            border-radius: 4px;
+        }
+
+        .history-header p {
+            color: var(--secondary-color);
+            font-size: 1rem;
+            line-height: 1.6;
+            max-width: 85%;
+            margin: 0.5rem auto 0;
+            opacity: 0.9;
+        }
+
+        .history-filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--light-color);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-color);
+            font-family: var(--body-font);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 1px solid var(--light-color);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+        }
+
+        .search-box i {
+            color: var(--secondary-color);
+            margin-right: 0.5rem;
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-family: var(--body-font);
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .search-input:focus {
+            outline: none;
+        }
+
+        .history-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--light-color);
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .history-tab {
+            padding: 0.8rem 1.5rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .history-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .history-tab.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .history-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--medical-gradient);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .history-content {
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid var(--light-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(43, 108, 176, 0.1);
+            border-color: rgba(43, 108, 176, 0.2);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-item-title i {
+            color: var(--primary-color);
+        }
+
+        .history-item-date {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            opacity: 0.8;
+        }
+
+        .history-item-content {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .history-item-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--light-color);
+            flex-shrink: 0;
+        }
+
+        .history-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .history-item-details {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .history-item-detail {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: var(--secondary-color);
+            width: 100px;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: var(--text-color);
+        }
+
+        .history-item-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .view-button {
+            background: var(--medical-gradient);
+            color: white;
+        }
+
+        .view-button:hover {
+            box-shadow: 0 4px 10px rgba(43, 108, 176, 0.2);
+        }
+
+        .delete-button {
+            background: white;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .delete-button:hover {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .history-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            text-align: center;
+            color: var(--secondary-color);
+            opacity: 0.7;
+        }
+
+        .history-empty i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .history-empty h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .history-empty p {
+            max-width: 80%;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-action-button {
+            background: var(--medical-gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .empty-action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(43, 108, 176, 0.2);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .pagination-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid var(--light-color);
+            color: var(--secondary-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .pagination-button.active {
+            background: var(--medical-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .pagination-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .history-container {
+                padding: 1.5rem;
+            }
+            
+            .history-filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .history-item-content {
+                flex-direction: column;
+            }
+            
+            .history-item-image {
+                width: 100%;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .history-container {
+                padding: 1rem;
+            }
+
+            .history-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .history-item {
+                padding: 1rem;
+            }
+            
+            .history-item-title {
+                font-size: 1rem;
+            }
+            
+            .history-item-actions {
+                flex-direction: column;
+            }
+            
+            .action-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo">
+                <i class="ri-heart-pulse-line"></i>
+                <span>齿影智诊</span>
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <div class="sidebar-section-title">主要功能</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="ri-home-4-line"></i>
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/predict" class="nav-link">
+                        <i class="ri-image-add-line"></i>
+                        <span>图像分析</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/medical_assistant" class="nav-link">
+                        <i class="ri-robot-line"></i>
+                        <span>医疗助手</span>
+                        <span class="badge">AI</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-section-title">辅助工具</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/history" class="nav-link active">
+                        <i class="ri-file-history-line"></i>
+                        <span>历史记录</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/settings" class="nav-link">
+                        <i class="ri-settings-3-line"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/help" class="nav-link">
+                        <i class="ri-question-line"></i>
+                        <span>帮助中心</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>@ 2025 齿影智诊</p>
+            <p>版本: 1.0</p>
+            <div class="sidebar-status">
+                <div class="status-indicator"></div>
+                <span>系统状态: 正常运行中</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="history-container">
+            <header class="history-header">
+                <h1>历史记录</h1>
+                <p>查看您的图像分析和医疗咨询历史记录</p>
+            </header>
+            
+            <div class="history-filters">
+                <div class="filter-group">
+                    <span class="filter-label">类型:</span>
+                    <select class="filter-select" id="type-filter">
+                        <option value="all">全部</option>
+                        <option value="image">图像分析</option>
+                        <option value="chat">医疗咨询</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <span class="filter-label">时间:</span>
+                    <select class="filter-select" id="time-filter">
+                        <option value="all">全部时间</option>
+                        <option value="today">今天</option>
+                        <option value="week">本周</option>
+                        <option value="month">本月</option>
+                        <option value="year">今年</option>
+                    </select>
+                </div>
+                
+                <div class="search-box">
+                    <i class="ri-search-line"></i>
+                    <input type="text" class="search-input" placeholder="搜索历史记录...">
+                </div>
+            </div>
+            
+            <div class="history-tabs">
+                <div class="history-tab active" data-tab="all">全部记录</div>
+                <div class="history-tab" data-tab="image">图像分析</div>
+                <div class="history-tab" data-tab="chat">医疗咨询</div>
+            </div>
+            
+            <div class="history-content">
+                <div class="history-list" id="history-list">
+                    <!-- 历史记录项示例 -->
+                    <div class="history-item" data-type="image">
+                        <div class="history-item-header">
+                            <div class="history-item-title">
+                                <i class="ri-image-add-line"></i>
+                                <span>牙齿X光片分析</span>
+                            </div>
+                            <div class="history-item-date">2023-04-07 14:30</div>
+                        </div>
+                        <div class="history-item-content">
+                            <div class="history-item-image">
+                                <img src="https://via.placeholder.com/120x120" alt="X光片缩略图">
+                            </div>
+                            <div class="history-item-details">
+                                <div class="history-item-detail">
+                                    <div class="detail-label">分析结果:</div>
+                                    <div class="detail-value">检测到3颗蛀牙，建议及时治疗</div>
+                                </div>
+                                <div class="history-item-detail">
+                                    <div class="detail-label">置信度:</div>
+                                    <div class="detail-value">92%</div>
+                                </div>
+                                <div class="history-item-detail">
+                                    <div class="detail-label">处理时间:</div>
+                                    <div class="detail-value">2.5秒</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-item-actions">
+                            <button class="action-button view-button">
+                                <i class="ri-eye-line"></i>
+                                <span>查看详情</span>
+                            </button>
+                            <button class="action-button delete-button">
+                                <i class="ri-delete-bin-line"></i>
+                                <span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="history-item" data-type="chat">
+                        <div class="history-item-header">
+                            <div class="history-item-title">
+                                <i class="ri-robot-line"></i>
+                                <span>医疗咨询</span>
+                            </div>
+                            <div class="history-item-date">2023-04-06 09:15</div>
+                        </div>
+                        <div class="history-item-content">
+                            <div class="history-item-details" style="width: 100%;">
+                                <div class="history-item-detail">
+                                    <div class="detail-label">咨询主题:</div>
+                                    <div class="detail-value">智齿疼痛问题</div>
+                                </div>
+                                <div class="history-item-detail">
+                                    <div class="detail-label">对话摘要:</div>
+                                    <div class="detail-value">询问了智齿疼痛的原因和缓解方法，AI助手建议及时就医检查，并提供了临时缓解疼痛的建议。</div>
+                                </div>
+                                <div class="history-item-detail">
+                                    <div class="detail-label">对话时长:</div>
+                                    <div class="detail-value">约5分钟</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-item-actions">
+                            <button class="action-button view-button">
+                                <i class="ri-eye-line"></i>
+                                <span>查看对话</span>
+                            </button>
+                            <button class="action-button delete-button">
+                                <i class="ri-delete-bin-line"></i>
+                                <span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="history-item" data-type="image">
+                        <div class="history-item-header">
+                            <div class="history-item-title">
+                                <i class="ri-image-add-line"></i>
+                                <span>牙齿X光片分析</span>
+                            </div>
+                            <div class="history-item-date">2023-04-05 16:45</div>
+                        </div>
+                        <div class="history-item-content">
+                            <div class="history-item-image">
+                                <img src="https://via.placeholder.com/120x120" alt="X光片缩略图">
+                            </div>
+                            <div class="history-item-details">
+                                <div class="history-item-detail">
+                                    <div class="detail-label">分析结果:</div>
+                                    <div class="detail-value">未检测到明显异常</div>
+                                </div>
+                                <div class="history-item-detail">
+                                    <div class="detail-label">置信度:</div>
+                                    <div class="detail-value">95%</div>
+                                </div>
+                                <div class="history-item-detail">
+                                    <div class="detail-label">处理时间:</div>
+                                    <div class="detail-value">1.8秒</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-item-actions">
+                            <button class="action-button view-button">
+                                <i class="ri-eye-line"></i>
+                                <span>查看详情</span>
+                            </button>
+                            <button class="action-button delete-button">
+                                <i class="ri-delete-bin-line"></i>
+                                <span>删除</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="history-empty" id="history-empty" style="display: none;">
+                    <i class="ri-file-history-line"></i>
+                    <h3>暂无历史记录</h3>
+                    <p>您还没有任何图像分析或医疗咨询的历史记录。开始使用我们的服务，记录将自动保存。</p>
+                    <button class="empty-action-button">
+                        <i class="ri-image-add-line"></i>
+                        <span>开始图像分析</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="pagination">
+                <button class="pagination-button disabled">
+                    <i class="ri-arrow-left-s-line"></i>
+                </button>
+                <button class="pagination-button active">1</button>
+                <button class="pagination-button">2</button>
+                <button class="pagination-button">3</button>
+                <button class="pagination-button">
+                    <i class="ri-arrow-right-s-line"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeFilter = document.getElementById('type-filter');
+            const timeFilter = document.getElementById('time-filter');
+            const searchInput = document.querySelector('.search-input');
+            const historyTabs = document.querySelectorAll('.history-tab');
+            const historyItems = document.querySelectorAll('.history-item');
+            const historyList = document.getElementById('history-list');
+            const historyEmpty = document.getElementById('history-empty');
+            
+            // 筛选功能
+            function filterHistory() {
+                const typeValue = typeFilter.value;
+                const timeValue = timeFilter.value;
+                const searchValue = searchInput.value.toLowerCase();
+                
+                let visibleCount = 0;
+                
+                historyItems.forEach(item => {
+                    const itemType = item.dataset.type;
+                    const itemTitle = item.querySelector('.history-item-title span').textContent.toLowerCase();
+                    const itemDetails = item.querySelector('.history-item-details').textContent.toLowerCase();
+                    
+                    // 类型筛选
+                    const typeMatch = typeValue === 'all' || itemType === typeValue;
+                    
+                    // 搜索筛选
+                    const searchMatch = itemTitle.includes(searchValue) || itemDetails.includes(searchValue);
+                    
+                    // 时间筛选 (简化版，实际应用中需要根据日期进行筛选)
+                    const timeMatch = true; // 这里简化处理，实际应用中需要根据日期进行筛选
+                    
+                    if (typeMatch && searchMatch && timeMatch) {
+                        item.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // 显示或隐藏空状态
+                if (visibleCount === 0) {
+                    historyList.style.display = 'none';
+                    historyEmpty.style.display = 'flex';
+                } else {
+                    historyList.style.display = 'flex';
+                    historyEmpty.style.display = 'none';
+                }
+            }
+            
+            // 标签页切换
+            historyTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有active类
+                    historyTabs.forEach(t => t.classList.remove('active'));
+                    
+                    // 添加active类到当前标签
+                    this.classList.add('active');
+                    
+                    const tabValue = this.dataset.tab;
+                    
+                    // 更新类型筛选器
+                    if (tabValue === 'all') {
+                        typeFilter.value = 'all';
+                    } else if (tabValue === 'image') {
+                        typeFilter.value = 'image';
+                    } else if (tabValue === 'chat') {
+                        typeFilter.value = 'chat';
+                    }
+                    
+                    // 应用筛选
+                    filterHistory();
+                });
+            });
+            
+            // 添加事件监听器
+            typeFilter.addEventListener('change', filterHistory);
+            timeFilter.addEventListener('change', filterHistory);
+            searchInput.addEventListener('input', filterHistory);
+            
+            // 查看详情按钮点击事件
+            document.querySelectorAll('.view-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const historyItem = this.closest('.history-item');
+                    const itemType = historyItem.dataset.type;
+                    
+                    if (itemType === 'image') {
+                        // 跳转到图像分析详情页
+                        window.location.href = '/predict';
+                    } else if (itemType === 'chat') {
+                        // 跳转到医疗咨询详情页
+                        window.location.href = '/medical_assistant';
+                    }
+                });
+            });
+            
+            // 删除按钮点击事件
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const historyItem = this.closest('.history-item');
+                    
+                    if (confirm('确定要删除这条历史记录吗？此操作不可撤销。')) {
+                        // 在实际应用中，这里应该发送请求到服务器删除记录
+                        historyItem.remove();
+                        
+                        // 检查是否还有记录
+                        if (document.querySelectorAll('.history-item').length === 0) {
+                            historyList.style.display = 'none';
+                            historyEmpty.style.display = 'flex';
+                        }
+                    }
+                });
+            });
+            
+            // 空状态按钮点击事件
+            document.querySelector('.empty-action-button').addEventListener('click', function() {
+                window.location.href = '/predict';
+            });
+        });
+    </script>
+</body>
+</html> 

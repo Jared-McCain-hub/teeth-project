@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="牙齿X光片智能分割系统 - 医疗助手">
+    <title>齿影智诊 - 医疗助手</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2B6CB0;      /* 医疗蓝 */
+            --secondary-color: #4A5568;     /* 深灰 */
+            --accent-color: #38B2AC;        /* 医疗青绿 */
+            --text-color: #2D3748;
+            --light-color: #EDF2F7;
+            --dark-color: #1A365D;
+            --white-color: #FFFFFF;
+            --error-color: #E53E3E;
+            --success-color: #38A169;
+            --medical-gradient: linear-gradient(135deg, #2B6CB0 0%, #38B2AC 100%);
+            --sidebar-width: 280px;
+            --transition-speed: 0.3s;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* 新增字体变量 */
+            --heading-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --body-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: default !important; /* 确保所有元素使用默认光标 */
+        }
+
+        /* 为可点击元素设置指针样式 */
+        a, button, input[type="file"], .file-input-trigger {
+            cursor: pointer !important;
+        }
+
+        /* 表单元素使用默认光标 */
+        input, textarea, select {
+            cursor: text !important;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, #FFFFFF, #F7FAFC);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid rgba(43, 108, 176, 0.1);
+            padding: 1.5rem 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0.5rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--light-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--medical-gradient);
+            border-radius: 3px;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            padding: 0.5rem 0;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary-color);
+            margin: 1.5rem 1.5rem 0.8rem;
+            opacity: 0.7;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            list-style: none;
+            margin-bottom: 0.3rem;
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            gap: 0.75rem;
+            font-weight: 500;
+            border-radius: 0 8px 8px 0;
+            margin-right: 0.7rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--medical-gradient);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-link.active {
+            box-shadow: 0 2px 5px rgba(43, 108, 176, 0.1);
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i,
+        .nav-link.active i {
+            transform: scale(1.2);
+        }
+
+        .nav-link .badge {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            margin-left: auto;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--light-color);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        .sidebar-footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            border-radius: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            margin-right: 6px;
+            position: relative;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--success-color);
+            opacity: 0.5;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            70% {
+                transform: scale(2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .main-content::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 90%;
+            height: 90%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, rgba(43, 108, 176, 0.05) 50%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .chat-container {
+            background: var(--white-color);
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(43, 108, 176, 0.15);
+            width: 100%;
+            max-width: 900px;
+            height: 80vh;
+            position: relative;
+            z-index: 1;
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(237, 242, 247, 0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .chat-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .chat-header h1 {
+            color: var(--dark-color);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        .chat-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--medical-gradient);
+            border-radius: 4px;
+        }
+
+        .chat-header p {
+            color: var(--secondary-color);
+            font-size: 1rem;
+            line-height: 1.6;
+            max-width: 85%;
+            margin: 0.5rem auto 0;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--medical-gradient);
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, #38B2AC 0%, #2B6CB0 100%);
+            color: white;
+        }
+
+        .message-content {
+            background: var(--light-color);
+            padding: 1rem;
+            border-radius: 18px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: var(--medical-gradient);
+            color: white;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            border: 1px solid rgba(43, 108, 176, 0.1);
+        }
+
+        .message-content p {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--secondary-color);
+            opacity: 0.7;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        .message.user .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 1rem;
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid var(--light-color);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            font-family: var(--body-font);
+            font-size: 1rem;
+            resize: none;
+            transition: all 0.3s ease;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+        }
+
+        .send-button {
+            background: var(--medical-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            align-self: flex-end;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(43, 108, 176, 0.2);
+        }
+
+        .send-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .send-button i {
+            font-size: 1.2rem;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+            align-self: flex-start;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            opacity: 0.6;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .context-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+        }
+
+        .context-option {
+            background: white;
+            border: 1px solid var(--light-color);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .context-option:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .context-option.active {
+            background: var(--medical-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .chat-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--secondary-color);
+            opacity: 0.7;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .chat-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .chat-placeholder h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .chat-placeholder p {
+            max-width: 80%;
+            line-height: 1.6;
+        }
+
+        .suggested-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .question-chip {
+            background: white;
+            border: 1px solid var(--light-color);
+            border-radius: 20px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .question-chip:hover {
+            background: var(--light-color);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 90vh;
+                padding: 1.5rem;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .chat-container {
+                padding: 1rem;
+                height: 95vh;
+            }
+
+            .chat-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .message-avatar {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .message-content {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo">
+                <i class="ri-heart-pulse-line"></i>
+                <span>齿影智诊</span>
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <div class="sidebar-section-title">主要功能</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="ri-home-4-line"></i>
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/predict" class="nav-link">
+                        <i class="ri-image-add-line"></i>
+                        <span>图像分析</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/medical_assistant" class="nav-link active">
+                        <i class="ri-robot-line"></i>
+                        <span>医疗助手</span>
+                        <span class="badge">AI</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-section-title">辅助工具</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/history" class="nav-link">
+                        <i class="ri-file-history-line"></i>
+                        <span>历史记录</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/settings" class="nav-link">
+                        <i class="ri-settings-3-line"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/help" class="nav-link">
+                        <i class="ri-question-line"></i>
+                        <span>帮助中心</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>@ 2025 齿影智诊</p>
+            <p>版本: 1.0</p>
+            <div class="sidebar-status">
+                <div class="status-indicator"></div>
+                <span>系统状态: 正常运行中</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="chat-container">
+            <header class="chat-header">
+                <h1>智能医疗助手</h1>
+                <p>专业的牙科AI助手，为您解答口腔健康问题</p>
+            </header>
+            
+            <div class="context-selector">
+                <div class="context-option active" data-context="常规咨询">常规咨询</div>
+                <div class="context-option" data-context="基于X光片分析结果的问诊">X光片分析咨询</div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message assistant">
+                    <div class="message-avatar">
+                        <i class="ri-robot-line"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>您好！我是您的牙科AI助手。我可以回答您关于口腔健康的问题，提供一般性建议。但请记住，我的建议不能替代专业医师的诊断和治疗。</p>
+                        <p>您有什么问题需要咨询吗？</p>
+                        <div class="message-time">{{ current_time }}</div>
+                    </div>
+                </div>
+                
+                <div class="chat-placeholder" id="chat-placeholder">
+                    <i class="ri-question-answer-line"></i>
+                    <h3>开始您的咨询</h3>
+                    <p>您可以询问关于口腔健康、牙齿护理、常见口腔问题等方面的问题</p>
+                    
+                    <div class="suggested-questions">
+                        <div class="question-chip">如何预防蛀牙？</div>
+                        <div class="question-chip">牙龈出血是什么原因？</div>
+                        <div class="question-chip">智齿需要拔除吗？</div>
+                        <div class="question-chip">如何缓解牙痛？</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <textarea class="chat-input" id="chat-input" placeholder="请输入您的问题..." rows="1"></textarea>
+                <button class="send-button" id="send-button">
+                    <i class="ri-send-plane-fill"></i>
+                    <span>发送</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const chatPlaceholder = document.getElementById('chat-placeholder');
+            const contextOptions = document.querySelectorAll('.context-option');
+            const questionChips = document.querySelectorAll('.question-chip');
+            
+            // 当前上下文
+            let currentContext = '常规咨询';
+            
+            // 自动调整输入框高度
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // 发送消息
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                // 隐藏占位符
+                chatPlaceholder.style.display = 'none';
+                
+                // 添加用户消息
+                addMessage(message, 'user');
+                
+                // 清空输入框并重置高度
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                
+                // 显示正在输入指示器
+                showTypingIndicator();
+                
+                // 阿里云DashScope API设置
+                const API_KEY = "sk-1bab854dd7e043c78afe0e17a1cb3799";
+                const APP_ID = "e6a4db4128894cb39a6957effb93d449";
+                const API_URL = `https://dashscope.aliyuncs.com/api/v1/apps/${APP_ID}/completion`;
+                
+                // 构建完整的prompt，包含角色设定和上下文
+                const fullPrompt = `你是一名很专业的牙科医生。${currentContext === '基于X光片分析结果的问诊' ? '请基于X光片分析结果进行专业诊断。' : '请提供专业的牙科建议。'}用户问题：${message}`;
+                
+                // 调用DashScope API
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        input: {
+                            prompt: fullPrompt
+                        },
+                        parameters: {},
+                        debug: {}
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // 隐藏正在输入指示器
+                    hideTypingIndicator();
+                    
+                    if (data.output && data.output.text) {
+                        // 添加助手回复
+                        addMessage(data.output.text, 'assistant');
+                    } else {
+                        // 显示错误消息
+                        addMessage('抱歉，处理您的请求时出现错误。请稍后再试。', 'assistant');
+                        console.error('DashScope API错误:', data);
+                    }
+                })
+                .catch(error => {
+                    // 隐藏正在输入指示器
+                    hideTypingIndicator();
+                    
+                    // 显示错误消息
+                    addMessage('抱歉，连接服务器时出现错误。请检查您的网络连接并稍后再试。', 'assistant');
+                    console.error('错误:', error);
+                });
+            }
+            
+            // 添加消息到聊天界面
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                
+                const icon = document.createElement('i');
+                icon.className = sender === 'user' ? 'ri-user-line' : 'ri-robot-line';
+                avatar.appendChild(icon);
+                
+                const content = document.createElement('div');
+                content.className = 'message-content';
+                
+                // 处理文本中的换行符
+                const paragraphs = text.split('\n');
+                paragraphs.forEach(paragraph => {
+                    if (paragraph.trim()) {
+                        const p = document.createElement('p');
+                        p.textContent = paragraph;
+                        content.appendChild(p);
+                    }
+                });
+                
+                // 添加时间戳
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                const now = new Date();
+                timeDiv.textContent = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                content.appendChild(timeDiv);
+                
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(content);
+                
+                chatMessages.appendChild(messageDiv);
+                
+                // 滚动到底部
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 显示正在输入指示器
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.id = 'typing-indicator';
+                
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'typing-dot';
+                    typingDiv.appendChild(dot);
+                }
+                
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 隐藏正在输入指示器
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            // 发送按钮点击事件
+            sendButton.addEventListener('click', sendMessage);
+            
+            // 输入框回车发送
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // 上下文选择
+            contextOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除所有active类
+                    contextOptions.forEach(opt => opt.classList.remove('active'));
+                    
+                    // 添加active类到当前选项
+                    this.classList.add('active');
+                    
+                    // 更新当前上下文
+                    currentContext = this.dataset.context;
+                    
+                    // 如果切换到X光片分析咨询，添加一条系统消息
+                    if (currentContext === '基于X光片分析结果的问诊') {
+                        addMessage('您已切换到X光片分析咨询模式。请提供您的X光片分析结果或相关问题，我会基于这些信息为您提供更具体的建议。', 'assistant');
+                    } else {
+                        addMessage('您已切换到常规咨询模式。请问有什么可以帮助您的？', 'assistant');
+                    }
+                });
+            });
+            
+            // 建议问题点击
+            questionChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    chatInput.value = this.textContent;
+                    chatInput.focus();
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

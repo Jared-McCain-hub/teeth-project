@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="牙齿X光片智能分割系统">
+    <title>齿影智诊 - 分析结果</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2B6CB0;
+            --secondary-color: #4A5568;
+            --accent-color: #38B2AC;
+            --text-color: #2D3748;
+            --light-color: #EDF2F7;
+            --dark-color: #1A365D;
+            --white-color: #FFFFFF;
+            --error-color: #E53E3E;
+            --success-color: #38A169;
+            --medical-gradient: linear-gradient(135deg, #2B6CB0 0%, #38B2AC 100%);
+            --sidebar-width: 280px;
+            --transition-speed: 0.3s;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --heading-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --body-font: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: default !important;
+        }
+
+        a, button, input[type="file"], .file-input-trigger {
+            cursor: pointer !important;
+        }
+
+        input, textarea, select {
+            cursor: text !important;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, #FFFFFF, #F7FAFC);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid rgba(43, 108, 176, 0.1);
+            padding: 1.5rem 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0.5rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--light-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--medical-gradient);
+            border-radius: 3px;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo i {
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            padding: 0.5rem 0;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary-color);
+            margin: 1.5rem 1.5rem 0.8rem;
+            opacity: 0.7;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            list-style: none;
+            margin-bottom: 0.3rem;
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            gap: 0.75rem;
+            font-weight: 500;
+            border-radius: 0 8px 8px 0;
+            margin-right: 0.7rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--medical-gradient);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-link.active {
+            box-shadow: 0 2px 5px rgba(43, 108, 176, 0.1);
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+            background: var(--medical-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i,
+        .nav-link.active i {
+            transform: scale(1.2);
+        }
+
+        .nav-link .badge {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            margin-left: auto;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--light-color);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        .sidebar-footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(to right, rgba(237, 242, 247, 0.5), rgba(237, 242, 247, 0.8));
+            border-radius: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            margin-right: 6px;
+            position: relative;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--success-color);
+            opacity: 0.5;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0h-4v4h4V0zm-8 0H8v4h4V0zM6 0H2v4h4V0z" fill="%232B6CB0" fill-opacity="0.05"/></svg>') repeat;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .main-content::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 90%;
+            height: 90%;
+            background: radial-gradient(circle, rgba(56, 178, 172, 0.1) 0%, rgba(43, 108, 176, 0.05) 50%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: var(--white-color);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.1);
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header h1 {
+            color: var(--dark-color);
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .analysis-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .analysis-card {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-wrapper {
+            width: 100%;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: var(--light-color);
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .image-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .image-wrapper:hover .image-label {
+            transform: translateY(0);
+        }
+
+        .upload-form {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: var(--white-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.1);
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .upload-form input[type="file"] {
+            margin: 1rem 0;
+        }
+
+        .button-new {
+            background: var(--medical-gradient);
+            color: var(--white-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.2);
+        }
+
+        @media (max-width: 1200px) {
+            .analysis-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .analysis-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* AI分析区域样式 */
+        .ai-analysis-container {
+            background: var(--white-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.1);
+            margin: 2rem auto;
+            padding: 1.5rem;
+            max-width: 800px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .ai-analysis-container:hover {
+            box-shadow: 0 6px 25px rgba(43, 108, 176, 0.2);
+        }
+
+        .ai-analysis-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .ai-analysis-header h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-analysis-subtitle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            gap: 0.5rem;
+        }
+
+        .ai-analysis-subtitle i {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .ai-analysis-content {
+            padding: 1.5rem;
+            background: var(--light-color);
+            border-radius: 10px;
+            min-height: 200px;
+        }
+
+        .ai-analysis-result {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-color);
+            white-space: pre-line;
+        }
+
+        .ai-analysis-result p {
+            margin-bottom: 1rem;
+        }
+
+        .ai-analysis-result strong {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .ai-analysis-result .highlight {
+            background-color: rgba(56, 178, 172, 0.1);
+            color: var(--accent-color);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+        }
+
+        .ai-analysis-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .ai-analysis-disclaimer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            gap: 0.5rem;
+        }
+
+        .ai-analysis-disclaimer i {
+            color: var(--error-color);
+        }
+
+        /* 加载动画 */
+        .ai-analysis-loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid var(--light-color);
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 聊天界面样式 */
+        .chat-container {
+            background: var(--white-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            margin: 2rem auto;
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .chat-header {
+            background: var(--medical-gradient);
+            color: var(--white-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chat-header i {
+            font-size: 1.5rem;
+        }
+
+        .chat-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 1rem;
+            border-radius: 10px;
+            position: relative;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--light-color);
+            color: var(--text-color);
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+            background: var(--primary-color);
+            color: var(--white-color);
+        }
+
+        .message.system {
+            align-self: center;
+            background: var(--accent-color);
+            color: var(--white-color);
+            max-width: 90%;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        .message.assistant .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .message.user .message-time {
+            color: var(--secondary-color);
+        }
+
+        .chat-input {
+            padding: 1.5rem;
+            background: var(--light-color);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(43, 108, 176, 0.2);
+        }
+
+        .chat-input button {
+            background: var(--medical-gradient);
+            color: var(--white-color);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.2);
+        }
+
+        .chat-input button i {
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="logo">
+                <i class="ri-heart-pulse-line"></i>
+                <span>齿影智诊</span>
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <div class="sidebar-section-title">主要功能</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="ri-home-4-line"></i>
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="ri-image-add-line"></i>
+                        <span>图像分析</span>
+                        <span class="badge">推荐</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/medical_assistant" class="nav-link">
+                        <i class="ri-robot-line"></i>
+                        <span>医疗助手</span>
+                    </a>
+                </li>
+            </ul>
+        
+            <div class="sidebar-section-title">辅助工具</div>
+            <ul>
+                <li class="nav-item">
+                    <a href="/history" class="nav-link">
+                        <i class="ri-file-history-line"></i>
+                        <span>历史记录</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/settings" class="nav-link">
+                        <i class="ri-settings-3-line"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/help" class="nav-link">
+                        <i class="ri-question-line"></i>
+                        <span>帮助中心</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>@ 2025 齿影智诊</p>
+            <p>版本: 1.0</p>
+            <div class="sidebar-status">
+                <div class="status-indicator"></div>
+                <span>系统状态: 正常运行中</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1>分析结果</h1>
+        </header>
+
+        <div class="analysis-container">
+            <div class="analysis-card">
+                <div class="image-wrapper">
+                    <img src="{{path1}}" alt="原始图像" />
+                    <div class="image-label">原始图像</div>
+                </div>
+            </div>
+            <div class="analysis-card">
+                <div class="image-wrapper">
+                    <img src="{{path2}}" alt="分割结果1" />
+                    <div class="image-label">分割结果1</div>
+                </div>
+            </div>
+            <div class="analysis-card">
+                <div class="image-wrapper">
+                    <img src="{{path3}}" alt="分割结果2" />
+                    <div class="image-label">分割结果2</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加AI分析结果区域 -->
+        <div class="ai-analysis-container">
+            <div class="ai-analysis-header">
+                <h2>AI诊断分析</h2>
+                <div class="ai-analysis-subtitle">
+                    <i class="ri-ai-generate"></i>
+                    <span>由Qwen-2.5大模型智能分析</span>
+                </div>
+            </div>
+            <div class="ai-analysis-content">
+                <div class="ai-analysis-loading" id="loading-indicator">
+                    <div class="spinner"></div>
+                    <p>正在分析图像数据，请稍候...</p>
+                </div>
+                <div class="ai-analysis-result" id="analysis-result">
+                    {{ ai_result|safe if ai_result else '暂无分析结果' }}
+                </div>
+            </div>
+            <div class="ai-analysis-footer">
+                <div class="ai-analysis-disclaimer">
+                    <i class="ri-information-line"></i>
+                    <span>分析结果仅供参考，请以专业医师诊断为准</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加解决方案区域 -->
+        <div class="ai-analysis-container solution-container">
+            <div class="ai-analysis-header">
+                <h2>专业解决方案</h2>
+                <div class="ai-analysis-subtitle">
+                    <i class="ri-heart-pulse-line"></i>
+                    <span>基于分析结果提供的治疗建议</span>
+                </div>
+            </div>
+            <div class="ai-analysis-content">
+                <div class="ai-analysis-loading" id="solution-loading-indicator">
+                    <div class="spinner"></div>
+                    <p>正在生成解决方案，请稍候...</p>
+                </div>
+                <div class="ai-analysis-result" id="solution-result">
+                    {{ solution_result|safe if solution_result else '暂无解决方案' }}
+                </div>
+            </div>
+            <div class="ai-analysis-footer">
+                <div class="ai-analysis-disclaimer">
+                    <i class="ri-information-line"></i>
+                    <span>解决方案仅供参考，具体治疗方案请咨询专业医师</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加聊天功能区域 -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <i class="ri-robot-line"></i>
+                <h2>智能问诊助手</h2>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message system">
+                    <p>欢迎使用智能问诊助手！我已经分析了您的牙齿X光片，您可以随时询问我关于分析结果的任何问题。</p>
+                </div>
+                <div class="message assistant">
+                    <p>您好！我是您的智能问诊助手。根据您的X光片分析结果，您可以询问我任何相关问题，我会为您提供专业的解答。</p>
+                    <div class="message-time">今天 {{ current_time if current_time else '00:00' }}</div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="请输入您的问题..." />
+                <button id="send-btn">
+                    <i class="ri-send-plane-fill"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="upload-form">
+            <form action="" enctype="multipart/form-data" method="POST">
+                <input type="file" name="file">
+                <input type="submit" value="继续分析" class="button-new">
+            </form>
+        </div>
+    </main>
+
+    <script>
+    // AI分析功能脚本
+    document.addEventListener('DOMContentLoaded', function() {
+        // 如果尚未有分析结果，则显示加载动画并请求分析
+        const resultElement = document.getElementById('analysis-result');
+        const loadingElement = document.getElementById('loading-indicator');
+        const solutionElement = document.getElementById('solution-result');
+        const solutionLoadingElement = document.getElementById('solution-loading-indicator');
+        
+        if (resultElement.textContent.trim() === '暂无分析结果') {
+            resultElement.style.display = 'none';
+            loadingElement.style.display = 'flex';
+            
+            // 发送请求获取AI分析结果
+            fetch('/analyze_image?path={{path2}}')
+                .then(response => response.json())
+                .then(data => {
+                    loadingElement.style.display = 'none';
+                    resultElement.style.display = 'block';
+                    
+                    if (data.success) {
+                        resultElement.innerHTML = data.result;
+                        
+                        // 获取到分析结果后，请求解决方案
+                        solutionElement.style.display = 'none';
+                        solutionLoadingElement.style.display = 'flex';
+                        
+                        fetch('/get_solution?path={{path2}}')
+                            .then(response => response.json())
+                            .then(solutionData => {
+                                solutionLoadingElement.style.display = 'none';
+                                solutionElement.style.display = 'block';
+                                
+                                if (solutionData.success) {
+                                    solutionElement.innerHTML = solutionData.result;
+                                } else {
+                                    solutionElement.innerHTML = '<p class="error">生成解决方案时出现错误。请稍后重试。</p>';
+                                }
+                            })
+                            .catch(error => {
+                                solutionLoadingElement.style.display = 'none';
+                                solutionElement.style.display = 'block';
+                                solutionElement.innerHTML = '<p class="error">连接服务器失败。请检查网络连接并重试。</p>';
+                                console.error('Error:', error);
+                            });
+                    } else {
+                        resultElement.innerHTML = '<p class="error">分析过程中出现错误。请稍后重试。</p>';
+                    }
+                })
+                .catch(error => {
+                    loadingElement.style.display = 'none';
+                    resultElement.style.display = 'block';
+                    resultElement.innerHTML = '<p class="error">连接服务器失败。请检查网络连接并重试。</p>';
+                    console.error('Error:', error);
+                });
+        } else if (solutionElement.textContent.trim() === '暂无解决方案') {
+            // 如果已有分析结果但没有解决方案，则请求解决方案
+            solutionElement.style.display = 'none';
+            solutionLoadingElement.style.display = 'flex';
+            
+            fetch('/get_solution?path={{path2}}')
+                .then(response => response.json())
+                .then(solutionData => {
+                    solutionLoadingElement.style.display = 'none';
+                    solutionElement.style.display = 'block';
+                    
+                    if (solutionData.success) {
+                        solutionElement.innerHTML = solutionData.result;
+                    } else {
+                        solutionElement.innerHTML = '<p class="error">生成解决方案时出现错误。请稍后重试。</p>';
+                    }
+                })
+                .catch(error => {
+                    solutionLoadingElement.style.display = 'none';
+                    solutionElement.style.display = 'block';
+                    solutionElement.innerHTML = '<p class="error">连接服务器失败。请检查网络连接并重试。</p>';
+                    console.error('Error:', error);
+                });
+        }
+        
+        // 聊天功能代码
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        // 获取页面上的分析报告和解决方案内容
+        function getReportContent() {
+            const analysisContent = document.getElementById('analysis-result').innerHTML;
+            const solutionContent = document.getElementById('solution-result').innerHTML;
+            
+            // 去除HTML标签，保留纯文本
+            const stripHtml = (html) => {
+                const temp = document.createElement('div');
+                temp.innerHTML = html;
+                return temp.textContent || temp.innerText || '';
+            };
+            
+            return {
+                analysis: stripHtml(analysisContent),
+                solution: stripHtml(solutionContent)
+            };
+        }
+        
+        // 发送消息
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // 添加用户消息到聊天界面
+            addMessage(message, 'user');
+            userInput.value = '';
+            
+            // 获取报告内容
+            const reportContent = getReportContent();
+            
+            // 创建一个消息ID，用于流式更新
+            const messageId = 'msg-' + Date.now();
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                          now.getMinutes().toString().padStart(2, '0');
+            
+            // 创建一个空的助手消息，准备接收流式内容
+            const messageDiv = document.createElement('div');
+            messageDiv.id = messageId;
+            messageDiv.className = 'message assistant';
+            messageDiv.innerHTML = `
+                <p id="${messageId}-content"></p>
+                <div class="message-time">今天 ${timeStr}</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 显示打字光标
+            const contentElement = document.getElementById(`${messageId}-content`);
+            const cursor = document.createElement('span');
+            cursor.className = 'typing-cursor';
+            cursor.textContent = '▌';
+            cursor.style.animation = 'blink 1s step-start infinite';
+            contentElement.appendChild(cursor);
+            
+            // 定义一个样式，使光标闪烁
+            if (!document.getElementById('cursor-style')) {
+                const style = document.createElement('style');
+                style.id = 'cursor-style';
+                style.textContent = `
+                    @keyframes blink {
+                        50% { opacity: 0; }
+                    }
+                    .typing-cursor {
+                        display: inline-block;
+                        width: 2px;
+                        animation: blink 1s step-start infinite;
+                        margin-left: 2px;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            let fullResponse = '';
+            
+            // 使用fetch和标准响应实现流式处理
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    context: '基于X光片分析结果的问诊',
+                    analysis_content: reportContent.analysis,
+                    solution_content: reportContent.solution
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 创建打字机效果
+                    const typeResponse = (text, index = 0) => {
+                        if (index < text.length) {
+                            fullResponse += text[index];
+                            contentElement.textContent = fullResponse;
+                            contentElement.appendChild(cursor);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                            
+                            // 设置随机延迟，模拟打字效果
+                            const randomDelay = Math.floor(Math.random() * 30) + 10; // 10-40ms
+                            setTimeout(() => typeResponse(text, index + 1), randomDelay);
+                        } else {
+                            // 打字完成，移除光标
+                            if (cursor.parentNode === contentElement) {
+                                contentElement.removeChild(cursor);
+                            }
+                        }
+                    };
+                    
+                    // 开始打字效果
+                    typeResponse(data.response);
+                } else {
+                    // 处理错误
+                    contentElement.textContent = `生成回答时出错: ${data.error || '未知错误'}`;
+                    if (cursor.parentNode === contentElement) {
+                        contentElement.removeChild(cursor);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Fetch failed:', error);
+                contentElement.textContent = '连接服务器失败，请检查网络连接。';
+                if (cursor.parentNode === contentElement) {
+                    contentElement.removeChild(cursor);
+                }
+            });
+        }
+        
+        // 添加消息到聊天界面（仅用于用户消息）
+        function addMessage(text, type, isLoading = false) {
+            const messageId = 'msg-' + Date.now();
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.id = messageId;
+            messageDiv.className = `message ${type}`;
+            
+            if (isLoading) {
+                messageDiv.innerHTML = `
+                    <p>${text}</p>
+                    <div class="message-time">正在输入...</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <p>${text}</p>
+                    <div class="message-time">今天 ${timeStr}</div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return messageId;
+        }
+        
+        // 移除消息（用于移除加载状态消息）
+        function removeMessage(messageId) {
+            const messageElement = document.getElementById(messageId);
+            if (messageElement) {
+                messageElement.remove();
+            }
+        }
+        
+        // 绑定发送按钮点击事件
+        sendBtn.addEventListener('click', sendMessage);
+        
+        // 绑定回车键发送
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // 医疗助手链接处理
+        document.getElementById('medical-assistant-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 创建医疗助手界面
+            // 隐藏当前界面内容
+            document.querySelector('.analysis-container').style.display = 'none';
+            document.querySelector('.ai-analysis-container').style.display = 'none';
+            document.querySelector('.solution-container').style.display = 'none';
+            
+            // 如果已经存在医疗助手界面，显示它
+            let assistantUI = document.getElementById('medical-assistant-ui');
+            if (assistantUI) {
+                assistantUI.style.display = 'block';
+                return;
+            }
+            
+            // 创建医疗助手界面
+            assistantUI = document.createElement('div');
+            assistantUI.id = 'medical-assistant-ui';
+            assistantUI.className = 'wrapper';
+            assistantUI.style.background = 'var(--white-color)';
+            assistantUI.style.padding = '3.5rem';
+            assistantUI.style.borderRadius = '24px';
+            assistantUI.style.boxShadow = '0 20px 40px rgba(43, 108, 176, 0.15)';
+            assistantUI.style.width = '100%';
+            assistantUI.style.maxWidth = '700px';
+            assistantUI.style.position = 'relative';
+            assistantUI.style.zIndex = '1';
+            assistantUI.style.transition = 'all var(--transition-speed)';
+            assistantUI.style.border = '1px solid rgba(237, 242, 247, 0.8)';
+            assistantUI.style.overflow = 'hidden';
+            assistantUI.style.margin = '2rem auto';
+            
+            // 添加背景效果
+            assistantUI.innerHTML = `
+                <header class="header" style="margin-bottom: 3rem; text-align: center; position: relative; z-index: 2;">
+                    <h1 style="color: var(--dark-color); font-size: 2.5rem; font-weight: 800; margin-bottom: 1.2rem; background: var(--medical-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; display: inline-block;">智能医疗助手</h1>
+                    <p style="color: var(--secondary-color); font-size: 1.2rem; line-height: 1.6; max-width: 85%; margin: 1.5rem auto 0; opacity: 0.9;">向AI提问任何牙科相关问题，获取专业解答</p>
+                </header>
+                <div class="chat-container" style="height: 400px; box-shadow: 0 10px 25px rgba(43, 108, 176, 0.15); margin-bottom: 2rem;">
+                    <div class="chat-header">
+                        <i class="ri-robot-line"></i>
+                        <h2>智能问诊助手</h2>
+                    </div>
+                    <div class="chat-messages" id="assistant-chat-messages">
+                        <div class="message system">
+                            <p>欢迎使用智能问诊助手！您可以向我询问任何关于口腔健康、牙齿护理或牙科治疗的问题。</p>
+                        </div>
+                        <div class="message assistant">
+                            <p>您好！我是齿影智诊的AI医疗助手。我可以回答您关于牙齿健康、常见口腔疾病、牙齿护理方法等问题。请问有什么可以帮助您的吗？</p>
+                            <div class="message-time">今天 ${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}</div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="assistant-user-input" placeholder="请输入您的问题..." />
+                        <button id="assistant-send-btn">
+                            <i class="ri-send-plane-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <button id="back-to-analysis-btn" style="background: var(--medical-gradient); color: var(--white-color); border: none; padding: 1.2rem 2.5rem; border-radius: 12px; font-weight: 600; font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(43, 108, 176, 0.2); display: inline-block;">
+                        <span style="display: flex; align-items: center; justify-content: center;">
+                            <i class="ri-arrow-left-line" style="margin-right: 10px;"></i>
+                            <span>返回分析结果</span>
+                        </span>
+                    </button>
+                </div>
+            `;
+            
+            document.querySelector('.main-content').insertBefore(assistantUI, document.querySelector('.upload-form'));
+            
+            // 处理返回按钮
+            document.getElementById('back-to-analysis-btn').addEventListener('click', function() {
+                document.getElementById('medical-assistant-ui').style.display = 'none';
+                document.querySelector('.analysis-container').style.display = 'grid';
+                document.querySelector('.ai-analysis-container').style.display = 'block';
+                document.querySelector('.solution-container').style.display = 'block';
+            });
+            
+            // 处理聊天功能
+            const assistantChatMessages = document.getElementById('assistant-chat-messages');
+            const assistantUserInput = document.getElementById('assistant-user-input');
+            const assistantSendBtn = document.getElementById('assistant-send-btn');
+            
+            // 发送消息函数
+            function sendAssistantMessage() {
+                const message = assistantUserInput.value.trim();
+                if (!message) return;
+                
+                // 添加用户消息
+                addAssistantMessage(message, 'user');
+                assistantUserInput.value = '';
+                
+                // 创建一个消息ID，用于流式更新
+                const messageId = 'assistant-msg-' + Date.now();
+                const now = new Date();
+                const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                              now.getMinutes().toString().padStart(2, '0');
+                
+                // 创建一个空的助手消息
+                const messageDiv = document.createElement('div');
+                messageDiv.id = messageId;
+                messageDiv.className = 'message assistant';
+                messageDiv.innerHTML = `
+                    <p id="${messageId}-content"></p>
+                    <div class="message-time">今天 ${timeStr}</div>
+                `;
+                assistantChatMessages.appendChild(messageDiv);
+                assistantChatMessages.scrollTop = assistantChatMessages.scrollHeight;
+                
+                // 显示打字光标
+                const contentElement = document.getElementById(`${messageId}-content`);
+                const cursor = document.createElement('span');
+                cursor.className = 'typing-cursor';
+                cursor.textContent = '▌';
+                cursor.style.animation = 'blink 1s step-start infinite';
+                contentElement.appendChild(cursor);
+                
+                let fullResponse = '';
+                
+                // 使用fetch发送请求
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        context: '医疗助手问答',
+                        is_medical_assistant: true
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 创建打字机效果
+                        const typeResponse = (text, index = 0) => {
+                            if (index < text.length) {
+                                fullResponse += text[index];
+                                contentElement.textContent = fullResponse;
+                                contentElement.appendChild(cursor);
+                                assistantChatMessages.scrollTop = assistantChatMessages.scrollHeight;
+                                
+                                // 设置随机延迟，模拟打字效果
+                                const randomDelay = Math.floor(Math.random() * 30) + 10; // 10-40ms
+                                setTimeout(() => typeResponse(text, index + 1), randomDelay);
+                            } else {
+                                // 打字完成，移除光标
+                                if (cursor.parentNode === contentElement) {
+                                    contentElement.removeChild(cursor);
+                                }
+                            }
+                        };
+                        
+                        // 开始打字效果
+                        typeResponse(data.response);
+                    } else {
+                        // 处理错误
+                        contentElement.textContent = `生成回答时出错: ${data.error || '未知错误'}`;
+                        if (cursor.parentNode === contentElement) {
+                            contentElement.removeChild(cursor);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch failed:', error);
+                    contentElement.textContent = '连接服务器失败，请检查网络连接。';
+                    if (cursor.parentNode === contentElement) {
+                        contentElement.removeChild(cursor);
+                    }
+                });
+            }
+            
+            // 添加消息到聊天界面
+            function addAssistantMessage(text, type, isLoading = false) {
+                const messageId = 'assistant-msg-' + Date.now();
+                const now = new Date();
+                const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                               now.getMinutes().toString().padStart(2, '0');
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.id = messageId;
+                messageDiv.className = `message ${type}`;
+                
+                if (isLoading) {
+                    messageDiv.innerHTML = `
+                        <p>${text}</p>
+                        <div class="message-time">正在输入...</div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <p>${text}</p>
+                        <div class="message-time">今天 ${timeStr}</div>
+                    `;
+                }
+                
+                assistantChatMessages.appendChild(messageDiv);
+                assistantChatMessages.scrollTop = assistantChatMessages.scrollHeight;
+                
+                return messageId;
+            }
+            
+            // 绑定发送按钮点击事件
+            assistantSendBtn.addEventListener('click', sendAssistantMessage);
+            
+            // 绑定回车键发送
+            assistantUserInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendAssistantMessage();
+                }
+            });
+            
+            // 自动聚焦输入框
+            assistantUserInput.focus();
+        });
+
+        // 首页链接处理
+        document.getElementById('home-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            if(confirm('确定要返回首页吗？当前分析结果将不会保存。')) {
+                window.location.href = '/';
+            }
+        });
+
+        // 辅助工具链接处理
+        document.getElementById('history-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('历史记录功能将在当前页面展示');
+        });
+
+        document.getElementById('settings-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('系统设置功能将在当前页面展示');
+        });
+
+        document.getElementById('help-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('帮助中心功能将在当前页面展示');
+        });
+    });
+    </script>
+</body>
+</html>
